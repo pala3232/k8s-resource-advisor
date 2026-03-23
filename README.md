@@ -86,19 +86,19 @@ Example output:
 
 ```
 INFO: Scanning cluster...
-[CRITICAL] deployment/api-server (production) - container 'api' has no resource requests
-[CRITICAL] deployment/api-server (production) - container 'api' has no resource limits
-[CRITICAL] deployment/worker (production) - container 'worker' is running in privileged mode
-[CRITICAL] deployment/debug-pod (staging) - pod uses hostNetwork — shares the node's network namespace
-[WARNING]  deployment/api-server (production) - container 'api' has no liveness probe
-[WARNING]  deployment/api-server (production) - container 'api' has no readiness probe
-[WARNING]  deployment/api-server (production) - container 'api' uses image 'api-server:latest' with 'latest' tag
-[WARNING]  deployment/api-server (production) - deployment has a single replica — no high availability
-[WARNING]  deployment/api-server (production) - no PodDisruptionBudget found matching this deployment
-[WARNING]  service/frontend (production) - service has no matching ready endpoints
-[WARNING]  service/debug-svc (staging) - service is of type NodePort, which exposes a port on every node
-[WARNING]  namespace/production (production) - no NetworkPolicy defined — all pod-to-pod traffic is allowed
-[INFO]     namespace/staging (staging) - no ResourceQuota defined — workloads can consume unlimited cluster resources
+[CRITICAL] deployment/api-server (namespace=production) - container 'api' has no resource requests
+[CRITICAL] deployment/api-server (namespace=production) - container 'api' has no resource limits
+[CRITICAL] deployment/worker (namespace=production) - container 'worker' is running in privileged mode
+[CRITICAL] deployment/debug-pod (namespace=staging) - pod uses hostNetwork — shares the node's network namespace
+[WARNING]  deployment/api-server (namespace=production) - container 'api' has no liveness probe
+[WARNING]  deployment/api-server (namespace=production) - container 'api' has no readiness probe
+[WARNING]  deployment/api-server (namespace=production) - container 'api' uses image 'api-server:latest' with 'latest' tag
+[WARNING]  deployment/api-server (namespace=production) - deployment has a single replica — no high availability
+[WARNING]  deployment/api-server (namespace=production) - no PodDisruptionBudget found matching this deployment
+[WARNING]  service/frontend (namespace=production) - service has no matching ready endpoints
+[WARNING]  service/debug-svc (namespace=staging) - service is of type NodePort, which exposes a port on every node
+[WARNING]  namespace/production (namespace=production) - no NetworkPolicy defined — all pod-to-pod traffic is allowed
+[INFO]     namespace/staging (namespace=staging) - no ResourceQuota defined — workloads can consume unlimited cluster resources
 
 Found 4 critical, 8 warning(s), 1 info across 13 finding(s).
 ```
