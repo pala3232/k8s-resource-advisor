@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from kubernetes.client import CoreV1Api, AppsV1Api
 from kubernetes.client.exceptions import ApiException

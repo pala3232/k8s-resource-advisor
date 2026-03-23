@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from kubernetes import client, config
 from kubernetes.client import ApiClient
 

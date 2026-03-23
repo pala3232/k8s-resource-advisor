@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from kubernetes import client as k8s_client
 from kubernetes.client import CoreV1Api
