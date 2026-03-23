@@ -3,7 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY pyproject.toml .
-RUN pip install --no-cache-dir kubernetes click rich
+RUN pip install --no-cache-dir kubernetes click
 
 COPY k8s_advisor/ k8s_advisor/
 RUN pip install --no-cache-dir --no-deps .

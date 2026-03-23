@@ -16,12 +16,18 @@ def check_pods(core_v1: CoreV1Api, apps_v1: AppsV1Api, namespace: str | None) ->
         ns = deploy.metadata.namespace
         containers = deploy.spec.template.spec.containers or []
 
+        pod_spec = deploy.spec.template.spec
+
         for container in containers:
             findings.extend(_check_resources(container, name, ns))
             findings.extend(_check_probes(container, name, ns))
             findings.extend(_check_root(container, name, ns))
             findings.extend(_check_latest_tag(container, name, ns))
+            findings.extend(_check_privileged(container, name, ns))
+            findings.extend(_check_read_only_root(container, name, ns))
 
+        findings.extend(_check_host_network(pod_spec, name, ns))
+        findings.extend(_check_single_replica(deploy, name, ns))
         findings.extend(_check_pdb(core_v1, name, ns, deploy.spec.selector.match_labels or {}))
 
     return findings
@@ -65,6 +71,36 @@ def _check_latest_tag(container, deploy_name: str, ns: str) -> list[Finding]:
     if tag == "latest":
         return [Finding("WARNING", "deployment", deploy_name, ns,
                         f"container '{container.name}' uses image '{image}' with 'latest' tag")]
+    return []
+
+
+def _check_privileged(container, deploy_name: str, ns: str) -> list[Finding]:
+    sc = container.security_context
+    if sc and sc.privileged:
+        return [Finding("CRITICAL", "deployment", deploy_name, ns,
+                        f"container '{container.name}' is running in privileged mode")]
+    return []
+
+
+def _check_read_only_root(container, deploy_name: str, ns: str) -> list[Finding]:
+    sc = container.security_context
+    if not sc or not sc.read_only_root_filesystem:
+        return [Finding("WARNING", "deployment", deploy_name, ns,
+                        f"container '{container.name}' does not have a read-only root filesystem")]
+    return []
+
+
+def _check_host_network(pod_spec, deploy_name: str, ns: str) -> list[Finding]:
+    if pod_spec and pod_spec.host_network:
+        return [Finding("CRITICAL", "deployment", deploy_name, ns,
+                        "pod uses hostNetwork — shares the node's network namespace")]
+    return []
+
+
+def _check_single_replica(deploy, deploy_name: str, ns: str) -> list[Finding]:
+    if (deploy.spec.replicas or 1) < 2:
+        return [Finding("WARNING", "deployment", deploy_name, ns,
+                        "deployment has a single replica — no high availability")]
     return []
 
 

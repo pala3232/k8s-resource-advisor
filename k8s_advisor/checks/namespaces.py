@@ -1,3 +1,4 @@
+from kubernetes import client as k8s_client
 from kubernetes.client import CoreV1Api
 from k8s_advisor.models import Finding
 
@@ -20,6 +21,7 @@ def check_namespaces(core_v1: CoreV1Api, namespace: str | None) -> list[Finding]
 
         findings.extend(_check_resource_quota(core_v1, ns))
         findings.extend(_check_secret_env_vars(core_v1, ns))
+        findings.extend(_check_network_policy(core_v1, ns))
 
     return findings
 
@@ -50,3 +52,12 @@ def _check_secret_env_vars(core_v1: CoreV1Api, ns: str) -> list[Finding]:
                     ))
 
     return findings
+
+
+def _check_network_policy(core_v1: CoreV1Api, ns: str) -> list[Finding]:
+    networking_v1 = k8s_client.NetworkingV1Api(core_v1.api_client)
+    policies = networking_v1.list_namespaced_network_policy(ns).items
+    if not policies:
+        return [Finding("WARNING", "namespace", ns, ns,
+                        "no NetworkPolicy defined — all pod-to-pod traffic is allowed")]
+    return []

@@ -10,8 +10,10 @@ requires-python = ">=3.11"
 dependencies = [
     "kubernetes>=29.0.0",
     "click>=8.1.0",
-    "rich>=13.0.0",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
 
 [project.scripts]
 k8s-advisor = "k8s_advisor.cli:main"
