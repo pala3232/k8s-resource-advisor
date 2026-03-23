@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/pala3232/k8s-resource-advisor/actions/workflows/build.yml/badge.svg)
 
-[![asciicast](https://asciinema.org/a/u6eBbwPBb16gb4D6.svg)](https://asciinema.org/a/u6eBbwPBb16gb4D6)
+[![asciicast](https://asciinema.org/a/J8HpCFdwMta5v9os.svg)](https://asciinema.org/a/J8HpCFdwMta5v9os)
 
 A Kubernetes best-practice linter. Connects to your cluster, scans resources, and reports violations — designed to run as a CronJob managed by ArgoCD.
 
