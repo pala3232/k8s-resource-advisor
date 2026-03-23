@@ -1,6 +1,9 @@
+import logging
 from kubernetes.client import CoreV1Api
 from kubernetes.client.exceptions import ApiException
 from k8s_advisor.models import Finding
+
+logger = logging.getLogger("k8s_advisor")
 
 
 def check_services(core_v1: CoreV1Api, namespace: str | None) -> list[Finding]:
@@ -32,7 +35,7 @@ def _check_endpoints(core_v1: CoreV1Api, svc_name: str, ns: str) -> list[Finding
         if e.status == 404:
             return []
         if e.status == 403:
-            print(f"[PERMISSION ERROR] cannot read endpoints in {ns} — add endpoints to ClusterRole")
+            logger.error("Permission denied: cannot read endpoints in %s — add endpoints to ClusterRole", ns)
         return []
 
     subsets = endpoints.subsets or []

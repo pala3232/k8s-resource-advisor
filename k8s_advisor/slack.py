@@ -1,7 +1,10 @@
 import os
 import json
+import logging
 import urllib.request
 from k8s_advisor.models import Finding
+
+logger = logging.getLogger("k8s_advisor")
 
 
 def notify(findings: list[Finding]) -> None:
@@ -38,4 +41,4 @@ def _post(url: str, payload: dict) -> None:
     try:
         urllib.request.urlopen(req, timeout=10)
     except Exception as e:
-        print(f"Slack notification failed: {e}")
+        logger.error("Slack notification failed: %s", e)

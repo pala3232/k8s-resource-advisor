@@ -1,6 +1,9 @@
+import logging
 from kubernetes.client import CoreV1Api, AppsV1Api
 from kubernetes.client.exceptions import ApiException
 from k8s_advisor.models import Finding
+
+logger = logging.getLogger("k8s_advisor")
 
 
 def check_pods(core_v1: CoreV1Api, apps_v1: AppsV1Api, namespace: str | None) -> list[Finding]:
@@ -112,7 +115,7 @@ def _check_pdb(core_v1: CoreV1Api, deploy_name: str, ns: str, selector: dict) ->
         pdbs = policy_v1.list_namespaced_pod_disruption_budget(ns).items
     except ApiException as e:
         if e.status == 403:
-            print(f"[PERMISSION ERROR] cannot list poddisruptionbudgets in {ns} — add policy/poddisruptionbudgets to ClusterRole")
+            logger.error("Permission denied: cannot list poddisruptionbudgets in %s — add policy/poddisruptionbudgets to ClusterRole", ns)
         return []
 
     for pdb in pdbs:

@@ -1,7 +1,10 @@
+import logging
 from kubernetes import client as k8s_client
 from kubernetes.client import CoreV1Api
 from kubernetes.client.exceptions import ApiException
 from k8s_advisor.models import Finding
+
+logger = logging.getLogger("k8s_advisor")
 
 SYSTEM_NAMESPACES = {"kube-system", "kube-public", "kube-node-lease"}
 
@@ -25,9 +28,9 @@ def check_namespaces(core_v1: CoreV1Api, namespace: str | None) -> list[Finding]
                 findings.extend(check(core_v1, ns))
             except ApiException as e:
                 if e.status == 403:
-                    print(f"[PERMISSION ERROR] {check.__name__} in {ns}: insufficient RBAC permissions")
+                    logger.error("Permission denied: %s in %s — check your ClusterRole", check.__name__, ns)
                 else:
-                    print(f"[API ERROR] {check.__name__} in {ns}: {e.status} {e.reason}")
+                    logger.error("API error in %s/%s: %s %s", check.__name__, ns, e.status, e.reason)
 
     return findings
 
