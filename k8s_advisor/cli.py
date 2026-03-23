@@ -16,8 +16,10 @@ from k8s_advisor.checks.namespaces import check_namespaces
 @click.option("--context", default=None, help="Kubeconfig context to use.")
 @click.option("--namespace", "-n", default=None, help="Limit scan to a single namespace. Scans all namespaces by default.")
 @click.option("--exclude-namespace", "-e", default=None, help="Comma-separated list of namespaces to exclude (e.g. kube-system,argocd).")
+@click.option("--output", "-o", default="text", type=click.Choice(["text", "json"]), help="Output format (default: text).")
+@click.option("--severity", "-s", default=None, type=click.Choice(["CRITICAL", "WARNING", "INFO"]), help="Only show findings at or above this severity.")
 @click.option("--exit-code", is_flag=True, default=False, help="Exit with code 1 if any CRITICAL findings are found.")
-def main(kubeconfig: str | None, context: str | None, namespace: str | None, exclude_namespace: str | None, exit_code: bool) -> None:
+def main(kubeconfig: str | None, context: str | None, namespace: str | None, exclude_namespace: str | None, output: str, severity: str | None, exit_code: bool) -> None:
     """Scan a Kubernetes cluster for best-practice violations."""
     try:
         api_client = build_client(kubeconfig=kubeconfig, context=context)
@@ -29,7 +31,8 @@ def main(kubeconfig: str | None, context: str | None, namespace: str | None, exc
     apps_v1 = k8s_client.AppsV1Api(api_client)
 
     excluded = set(exclude_namespace.split(",")) if exclude_namespace else set()
-    print("Scanning cluster...")
+    if output != "json":
+        print("Scanning cluster...")
 
     findings = []
     for check, args in [
@@ -50,7 +53,11 @@ def main(kubeconfig: str | None, context: str | None, namespace: str | None, exc
     if excluded:
         findings = [f for f in findings if f.namespace not in excluded]
 
-    print_report(findings)
+    severity_order = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
+    if severity:
+        findings = [f for f in findings if severity_order[f.severity] <= severity_order[severity]]
+
+    print_report(findings, output=output)
     notify(findings)
 
     if exit_code and any(f.severity == "CRITICAL" for f in findings):
