@@ -10,7 +10,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: k8s-resource-advisor
-        image: k8s-resource-advisor:latest
+        image: ghcr.io/pala3232/k8s-resource-advisor:latest
         command: ["k8s-advisor"]
         resources:
           requests:

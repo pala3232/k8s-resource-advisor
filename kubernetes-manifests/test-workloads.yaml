@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: advisor-test
+---
+# Triggers: no resource limits, no probes, latest tag, running as root
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-deployment
+  namespace: advisor-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bad-deployment
+  template:
+    metadata:
+      labels:
+        app: bad-deployment
+    spec:
+      securityContext: {}
+      containers:
+      - name: app
+        image: nginx:latest
+---
+# Triggers: NodePort service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeport-service
+  namespace: advisor-test
+spec:
+  type: NodePort
+  selector:
+    app: bad-deployment
+  ports:
+  - port: 80
+    nodePort: 30080
+---
+# Triggers: no matching pods
+apiVersion: v1
+kind: Service
+metadata:
+  name: orphan-service
+  namespace: advisor-test
+spec:
+  selector:
+    app: does-not-exist
+  ports:
+  - port: 80
+---
+# Triggers: secret as env var
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-secret
+  namespace: advisor-test
+stringData:
+  API_KEY: supersecret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-as-env
+  namespace: advisor-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secret-as-env
+  template:
+    metadata:
+      labels:
+        app: secret-as-env
+    spec:
+      containers:
+      - name: app
+        image: nginx:latest
+        env:
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test-secret
+              key: API_KEY
