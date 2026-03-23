@@ -1,7 +1,21 @@
 from __future__ import annotations
 
 import json
+import sys
 from k8s_advisor.models import Finding
+
+_COLORS = {
+    "CRITICAL": "\033[31m",  # red
+    "WARNING":  "\033[33m",  # yellow
+    "INFO":     "\033[36m",  # cyan
+    "RESET":    "\033[0m",
+}
+
+
+def _colorize(severity: str, text: str) -> str:
+    if not sys.stdout.isatty():
+        return text
+    return f"{_COLORS[severity]}{text}{_COLORS['RESET']}"
 
 
 def print_report(findings: list[Finding], output: str = "text") -> None:
@@ -20,7 +34,8 @@ def _print_text(findings: list[Finding]) -> None:
     sorted_findings = sorted(findings, key=lambda f: order[f.severity])
 
     for f in sorted_findings:
-        print(f"[{f.severity}] {f.resource_type}/{f.resource_name} ({f.namespace}) - {f.message}")
+        label = _colorize(f.severity, f"[{f.severity}]")
+        print(f"{label} {f.resource_type}/{f.resource_name} (namespace={f.namespace}) - {f.message}")
 
     counts = {"CRITICAL": 0, "WARNING": 0, "INFO": 0}
     for f in sorted_findings:

@@ -8,14 +8,14 @@ A Kubernetes best-practice linter. Connects to your cluster, scans resources, an
 
 ```
 INFO: Scanning cluster...
-[CRITICAL] deployment/bad-deployment (advisor-test) - container 'app' has no resource requests
-[CRITICAL] deployment/bad-deployment (advisor-test) - container 'app' has no resource limits
-[CRITICAL] deployment/bad-deployment (advisor-test) - container 'app' is running in privileged mode
-[WARNING]  deployment/bad-deployment (advisor-test) - container 'app' has no liveness probe
-[WARNING]  deployment/bad-deployment (advisor-test) - deployment has a single replica — no high availability
-[WARNING]  service/orphan-service (advisor-test) - service has no matching ready endpoints
-[WARNING]  namespace/advisor-test (advisor-test) - no NetworkPolicy defined — all pod-to-pod traffic is allowed
-[INFO]     namespace/advisor-test (advisor-test) - no ResourceQuota defined
+[CRITICAL] deployment/bad-deployment (namespace=advisor-test) - container 'app' has no resource requests
+[CRITICAL] deployment/bad-deployment (namespace=advisor-test) - container 'app' has no resource limits
+[CRITICAL] deployment/bad-deployment (namespace=advisor-test) - container 'app' is running in privileged mode
+[WARNING]  deployment/bad-deployment (namespace=advisor-test) - container 'app' has no liveness probe
+[WARNING]  deployment/bad-deployment (namespace=advisor-test) - deployment has a single replica — no high availability
+[WARNING]  service/orphan-service (namespace=advisor-test) - service has no matching ready endpoints
+[WARNING]  namespace/advisor-test (namespace=advisor-test) - no NetworkPolicy defined — all pod-to-pod traffic is allowed
+[INFO]     namespace/advisor-test (namespace=advisor-test) - no ResourceQuota defined
 
 Found 3 critical, 5 warning(s), 1 info across 9 finding(s).
 ```
