@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 from k8s_advisor.models import Finding
 
