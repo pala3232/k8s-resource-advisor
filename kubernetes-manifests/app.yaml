@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: k8s-resource-advisor
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pala3232/k8s-resource-advisor.git
+    targetRevision: HEAD
+    path: kubernetes-manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: k8s-resource-advisor
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

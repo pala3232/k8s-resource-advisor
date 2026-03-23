@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8s-resource-advisor
+  namespace: k8s-resource-advisor
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: k8s-resource-advisor
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "namespaces", "resourcequotas"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list"]
+- apiGroups: ["policy"]
+  resources: ["poddisruptionbudgets"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-resource-advisor
+subjects:
+- kind: ServiceAccount
+  name: k8s-resource-advisor
+  namespace: k8s-resource-advisor
+roleRef:
+  kind: ClusterRole
+  name: k8s-resource-advisor
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "k8s-resource-advisor"
+version = "0.1.0"
+description = "A Kubernetes best-practice linter that scans your cluster and reports violations"
+requires-python = ">=3.11"
+dependencies = [
+    "kubernetes>=29.0.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+k8s-advisor = "k8s_advisor.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["k8s_advisor"]

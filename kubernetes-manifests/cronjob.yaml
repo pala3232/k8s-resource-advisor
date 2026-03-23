@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k8s-resource-advisor
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      serviceAccountName: k8s-resource-advisor
+      restartPolicy: Never
+      containers:
+      - name: k8s-resource-advisor
+        image: k8s-resource-advisor:latest
+        command: ["k8s-advisor"]
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
