@@ -76,7 +76,7 @@ kubectl apply -f kubernetes-manifests/rbac.yaml
 kubectl apply -f kubernetes-manifests/cronjob.yaml
 ```
 
-Runs every minute. View the latest scan:
+Runs every minute by default. Adjust the schedule by editing `spec.schedule` in `kubernetes-manifests/cronjob.yaml` (standard cron syntax). View the latest scan:
 
 ```bash
 kubectl logs -l job-name=k8s-resource-advisor -n k8s-resource-advisor | cat
