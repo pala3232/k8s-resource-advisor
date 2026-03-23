@@ -3,7 +3,7 @@ from rich.table import Table
 from rich import box
 from k8s_advisor.models import Finding
 
-console = Console()
+console = Console(width=200)
 
 SEVERITY_STYLES = {
     "CRITICAL": "bold red",
