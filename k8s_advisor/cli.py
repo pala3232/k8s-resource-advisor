@@ -14,8 +14,9 @@ from k8s_advisor.checks.namespaces import check_namespaces
 @click.option("--kubeconfig", default=None, help="Path to kubeconfig file. Defaults to in-cluster config, then ~/.kube/config.")
 @click.option("--context", default=None, help="Kubeconfig context to use.")
 @click.option("--namespace", "-n", default=None, help="Limit scan to a single namespace. Scans all namespaces by default.")
+@click.option("--exclude-namespace", "-e", default=None, help="Comma-separated list of namespaces to exclude (e.g. kube-system,argocd).")
 @click.option("--exit-code", is_flag=True, default=False, help="Exit with code 1 if any CRITICAL findings are found.")
-def main(kubeconfig: str | None, context: str | None, namespace: str | None, exit_code: bool) -> None:
+def main(kubeconfig: str | None, context: str | None, namespace: str | None, exclude_namespace: str | None, exit_code: bool) -> None:
     """Scan a Kubernetes cluster for best-practice violations."""
     try:
         api_client = build_client(kubeconfig=kubeconfig, context=context)
@@ -26,12 +27,16 @@ def main(kubeconfig: str | None, context: str | None, namespace: str | None, exi
     core_v1 = k8s_client.CoreV1Api(api_client)
     apps_v1 = k8s_client.AppsV1Api(api_client)
 
+    excluded = set(exclude_namespace.split(",")) if exclude_namespace else set()
     print("Scanning cluster...")
 
     findings = []
     findings.extend(check_pods(core_v1, apps_v1, namespace))
     findings.extend(check_services(core_v1, namespace))
     findings.extend(check_namespaces(core_v1, namespace))
+
+    if excluded:
+        findings = [f for f in findings if f.namespace not in excluded]
 
     print_report(findings)
     notify(findings)

@@ -17,7 +17,7 @@ spec:
           containers:
           - name: k8s-resource-advisor
             image: ghcr.io/pala3232/k8s-resource-advisor:latest
-            command: ["k8s-advisor"]
+            command: ["k8s-advisor", "--exclude-namespace", "kube-system,argocd,k8s-resource-advisor"]
             env:
             - name: SLACK_WEBHOOK_URL
               valueFrom:
