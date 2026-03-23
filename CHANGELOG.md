@@ -24,3 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deployed as a Kubernetes CronJob managed by ArgoCD
 - GitHub Actions CI: tests run before image build
 - PrometheusRule alerts for CronJob health monitoring
+- ANSI color output for severity labels (red/yellow/cyan) with TTY detection — plain text in `kubectl logs`
+- asciinema demo recording embedded in README
+
+### Changed
+- Output format: `(namespace)` → `(namespace=NAME)` for clarity
+- Python compatibility: supports Python 3.8+ via `from __future__ import annotations`
