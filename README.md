@@ -127,6 +127,8 @@ kubectl create secret generic k8s-advisor-secrets \
   -n k8s-resource-advisor
 ```
 
+![Slack notification](docs/slack-notification.png)
+
 ## Observability
 
 The CronJob is monitored via `kube-state-metrics` + Prometheus. A `PrometheusRule` is included in `kubernetes-manifests/prometheusrule.yaml` with two alerts:
