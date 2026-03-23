@@ -1,9 +1,7 @@
 from rich.console import Console
-from rich.table import Table
-from rich import box
 from k8s_advisor.models import Finding
 
-console = Console(width=200)
+console = Console()
 
 SEVERITY_STYLES = {
     "CRITICAL": "bold red",
@@ -17,26 +15,14 @@ def print_report(findings: list[Finding]) -> None:
         console.print("\n[bold green]No issues found. Your cluster looks healthy![/bold green]\n")
         return
 
-    table = Table(box=box.ROUNDED, show_header=True, header_style="bold white")
-    table.add_column("Severity", style="bold", width=10)
-    table.add_column("Resource", width=35)
-    table.add_column("Namespace", width=20)
-    table.add_column("Message")
-
     order = {"CRITICAL": 0, "WARNING": 1, "INFO": 2}
     sorted_findings = sorted(findings, key=lambda f: order[f.severity])
 
+    console.print()
     for f in sorted_findings:
         style = SEVERITY_STYLES[f.severity]
-        table.add_row(
-            f"[{style}]{f.severity}[/{style}]",
-            f"{f.resource_type}/{f.resource_name}",
-            f.namespace,
-            f.message,
-        )
+        console.print(f"[{style}][{f.severity}][/{style}] {f.resource_type}/{f.resource_name} ({f.namespace}) - {f.message}")
 
-    console.print()
-    console.print(table)
     _print_summary(sorted_findings)
 
 
