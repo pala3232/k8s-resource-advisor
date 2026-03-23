@@ -1,4 +1,5 @@
 from kubernetes.client import CoreV1Api, AppsV1Api
+from kubernetes.client.exceptions import ApiException
 from k8s_advisor.models import Finding
 
 
@@ -109,7 +110,9 @@ def _check_pdb(core_v1: CoreV1Api, deploy_name: str, ns: str, selector: dict) ->
         from kubernetes import client as k8s_client
         policy_v1 = k8s_client.PolicyV1Api(core_v1.api_client)
         pdbs = policy_v1.list_namespaced_pod_disruption_budget(ns).items
-    except Exception:
+    except ApiException as e:
+        if e.status == 403:
+            print(f"[PERMISSION ERROR] cannot list poddisruptionbudgets in {ns} — add policy/poddisruptionbudgets to ClusterRole")
         return []
 
     for pdb in pdbs:

@@ -1,6 +1,7 @@
 import sys
 import click
 from kubernetes import client as k8s_client
+from kubernetes.client.exceptions import ApiException
 
 from k8s_advisor.client import build_client
 from k8s_advisor.report import print_report
@@ -31,9 +32,20 @@ def main(kubeconfig: str | None, context: str | None, namespace: str | None, exc
     print("Scanning cluster...")
 
     findings = []
-    findings.extend(check_pods(core_v1, apps_v1, namespace))
-    findings.extend(check_services(core_v1, namespace))
-    findings.extend(check_namespaces(core_v1, namespace))
+    for check, args in [
+        (check_pods, (core_v1, apps_v1, namespace)),
+        (check_services, (core_v1, namespace)),
+        (check_namespaces, (core_v1, namespace)),
+    ]:
+        try:
+            findings.extend(check(*args))
+        except ApiException as e:
+            if e.status == 403:
+                print(f"[PERMISSION ERROR] {check.__name__}: insufficient RBAC permissions — {e.reason}")
+            else:
+                print(f"[API ERROR] {check.__name__}: {e.status} {e.reason}")
+        except Exception as e:
+            print(f"[ERROR] {check.__name__} failed unexpectedly: {e}")
 
     if excluded:
         findings = [f for f in findings if f.namespace not in excluded]

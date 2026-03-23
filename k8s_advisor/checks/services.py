@@ -1,4 +1,5 @@
 from kubernetes.client import CoreV1Api
+from kubernetes.client.exceptions import ApiException
 from k8s_advisor.models import Finding
 
 
@@ -27,7 +28,11 @@ def check_services(core_v1: CoreV1Api, namespace: str | None) -> list[Finding]:
 def _check_endpoints(core_v1: CoreV1Api, svc_name: str, ns: str) -> list[Finding]:
     try:
         endpoints = core_v1.read_namespaced_endpoints(svc_name, ns)
-    except Exception:
+    except ApiException as e:
+        if e.status == 404:
+            return []
+        if e.status == 403:
+            print(f"[PERMISSION ERROR] cannot read endpoints in {ns} — add endpoints to ClusterRole")
         return []
 
     subsets = endpoints.subsets or []

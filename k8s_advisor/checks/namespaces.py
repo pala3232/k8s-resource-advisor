@@ -1,5 +1,6 @@
 from kubernetes import client as k8s_client
 from kubernetes.client import CoreV1Api
+from kubernetes.client.exceptions import ApiException
 from k8s_advisor.models import Finding
 
 SYSTEM_NAMESPACES = {"kube-system", "kube-public", "kube-node-lease"}
@@ -19,9 +20,14 @@ def check_namespaces(core_v1: CoreV1Api, namespace: str | None) -> list[Finding]
         if ns in SYSTEM_NAMESPACES:
             continue
 
-        findings.extend(_check_resource_quota(core_v1, ns))
-        findings.extend(_check_secret_env_vars(core_v1, ns))
-        findings.extend(_check_network_policy(core_v1, ns))
+        for check in (_check_resource_quota, _check_secret_env_vars, _check_network_policy):
+            try:
+                findings.extend(check(core_v1, ns))
+            except ApiException as e:
+                if e.status == 403:
+                    print(f"[PERMISSION ERROR] {check.__name__} in {ns}: insufficient RBAC permissions")
+                else:
+                    print(f"[API ERROR] {check.__name__} in {ns}: {e.status} {e.reason}")
 
     return findings
 
